@@ -35,7 +35,7 @@ class LocalStorageService {
         await clearRememberLogin();
       }
     } catch (_) {
-      throw Exception('Khong the luu thong tin Remember Me');
+      throw Exception('Không thể lưu thông tin Remember Me');
     }
   }
 
@@ -61,7 +61,7 @@ class LocalStorageService {
         prefs.remove(_savedPasswordKey),
       ]);
     } catch (_) {
-      throw Exception('Khong the xoa thong tin Remember Me');
+      throw Exception('Không thể xóa thông tin Remember Me');
     }
   }
 
@@ -70,7 +70,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_loginStateKey, value);
     } catch (_) {
-      throw Exception('Khong the luu trang thai dang nhap');
+      throw Exception('Không thể lưu trạng thái đăng nhập');
     }
   }
 
@@ -88,7 +88,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_currentUserKey, jsonEncode(user.toJson()));
     } catch (_) {
-      throw Exception('Khong the luu thong tin nguoi dung');
+      throw Exception('Không thể lưu thông tin người dùng');
     }
   }
 
@@ -123,7 +123,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_appSettingsKey, jsonEncode(settings.toJson()));
     } catch (_) {
-      throw Exception('Khong the luu cai dat ung dung');
+      throw Exception('Không thể lưu cài đặt ứng dụng');
     }
   }
 
@@ -150,7 +150,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
     } catch (_) {
-      throw Exception('Khong the xoa du lieu cuc bo');
+      throw Exception('Không thể xóa dữ liệu cục bộ');
     }
   }
 
@@ -196,7 +196,7 @@ class LocalStorageService {
         jsonEncode(history.map((item) => item.toJson()).toList()),
       );
     } catch (_) {
-      throw Exception('Khong the luu lich su dang nhap');
+      throw Exception('Không thể lưu lịch sử đăng nhập');
     }
   }
 
@@ -205,7 +205,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_loginHistoryKey);
     } catch (_) {
-      throw Exception('Khong the xoa lich su dang nhap');
+      throw Exception('Không thể xóa lịch sử đăng nhập');
     }
   }
 
@@ -221,7 +221,7 @@ class LocalStorageService {
         jsonEncode(history.map((item) => item.toJson()).toList()),
       );
     } catch (_) {
-      throw Exception('Khong the xoa muc lich su dang nhap');
+      throw Exception('Không thể xóa mục lịch sử đăng nhập');
     }
   }
 

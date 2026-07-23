@@ -1,0 +1,82 @@
+[debug] [2026-07-07T06:12:27.257Z] ----------------------------------------------------------------------
+[debug] [2026-07-07T06:12:27.259Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list --json
+[debug] [2026-07-07T06:12:27.260Z] CLI Version:   15.18.0
+[debug] [2026-07-07T06:12:27.260Z] Platform:      win32
+[debug] [2026-07-07T06:12:27.260Z] Node Version:  v24.10.0
+[debug] [2026-07-07T06:12:27.260Z] Time:          Tue Jul 07 2026 13:12:27 GMT+0700 (Giờ Đông Dương)
+[debug] [2026-07-07T06:12:27.260Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-07T06:12:27.261Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-07-07T06:12:27.291Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-07T06:12:27.291Z] > authorizing via signed-in user (hnampython124@gmail.com)
+[debug] [2026-07-07T06:12:27.293Z] Checked if tokens are valid: false, expires at: 1779510927130
+[debug] [2026-07-07T06:12:27.293Z] Checked if tokens are valid: false, expires at: 1779510927130
+[debug] [2026-07-07T06:12:27.293Z] > refreshing access token with scopes: []
+[debug] [2026-07-07T06:12:27.294Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-07-07T06:12:27.294Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-07-07T06:12:27.524Z] *** [apiv2] error from fetch(https://www.googleapis.com/oauth2/v3/token, {"headers":{},"method":"POST","body":{"_overheadLength":545,"_valueLength":212,"_valuesToMeasure":[],"writable":false,"readable":true,"dataSize":0,"maxDataSize":2097152,"pauseStreams":true,"_released":true,"_streams":[],"_currentStream":null,"_insideLoop":false,"_pendingNext":false,"_boundary":"--------------------------11d6d1890c855e2e4fe83921","_events":{},"_eventsCount":1}}): FetchError: request to https://www.googleapis.com/oauth2/v3/token failed, reason: unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-07-07T06:12:27.524Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-07-07T06:12:27.652Z] FirebaseError: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+    at invalidCredentialError (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\auth.js:177:12)
+    at refreshTokens (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\auth.js:590:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getAccessToken (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:52:18)
+    at async Client.addAuthHeader (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:182:21)
+    at async Client.request (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:129:34)
+    at async getProjectPage (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:287:17)
+    at async getFirebaseProjectPage (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:304:23)
+    at async listFirebaseProjects (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:333:29)
+    at async Command.actionFn (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\projects-list.js:51:20)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-07-07T06:12:27.790Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-07-07T06:12:27.790Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[debug] [2026-07-07T06:14:36.113Z] ----------------------------------------------------------------------
+[debug] [2026-07-07T06:14:36.121Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-07-07T06:14:36.122Z] CLI Version:   15.18.0
+[debug] [2026-07-07T06:14:36.122Z] Platform:      win32
+[debug] [2026-07-07T06:14:36.122Z] Node Version:  v24.10.0
+[debug] [2026-07-07T06:14:36.122Z] Time:          Tue Jul 07 2026 13:14:36 GMT+0700 (Giờ Đông Dương)
+[debug] [2026-07-07T06:14:36.122Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-07T06:14:36.124Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-07-07T06:14:36.177Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-07T06:14:36.178Z] > authorizing via signed-in user (hnampython124@gmail.com)
+[debug] [2026-07-07T06:14:36.180Z] Checked if tokens are valid: false, expires at: 1779510927130
+[debug] [2026-07-07T06:14:36.180Z] Checked if tokens are valid: false, expires at: 1779510927130
+[debug] [2026-07-07T06:14:36.181Z] > refreshing access token with scopes: []
+[debug] [2026-07-07T06:14:36.182Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-07-07T06:14:36.182Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-07-07T06:14:36.309Z] *** [apiv2] error from fetch(https://www.googleapis.com/oauth2/v3/token, {"headers":{},"method":"POST","body":{"_overheadLength":545,"_valueLength":212,"_valuesToMeasure":[],"writable":false,"readable":true,"dataSize":0,"maxDataSize":2097152,"pauseStreams":true,"_released":true,"_streams":[],"_currentStream":null,"_insideLoop":false,"_pendingNext":false,"_boundary":"--------------------------7a685b292d7a408e6ceb7cbe","_events":{},"_eventsCount":1}}): FetchError: request to https://www.googleapis.com/oauth2/v3/token failed, reason: unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-07-07T06:14:36.309Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-07-07T06:14:36.416Z] FirebaseError: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+    at invalidCredentialError (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\auth.js:177:12)
+    at refreshTokens (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\auth.js:590:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getAccessToken (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:52:18)
+    at async Client.addAuthHeader (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:182:21)
+    at async Client.request (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:129:34)
+    at async getProjectPage (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:287:17)
+    at async getFirebaseProjectPage (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:304:23)
+    at async listFirebaseProjects (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\management\projects.js:333:29)
+    at async Command.actionFn (C:\Users\HAI NAM\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\projects-list.js:51:20)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-07-07T06:14:36.543Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-07-07T06:14:36.543Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json

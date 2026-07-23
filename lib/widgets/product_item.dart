@@ -2,12 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/product.dart';
+import 'app_network_image.dart';
 
 class ProductItem extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
+  final VoidCallback? onAddToCart;
+  final VoidCallback? onToggleFavourite;
+  final bool isFavourite;
 
-  const ProductItem({super.key, required this.product, required this.onTap});
+  const ProductItem({
+    super.key,
+    required this.product,
+    required this.onTap,
+    this.onAddToCart,
+    this.onToggleFavourite,
+    this.isFavourite = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,34 +30,37 @@ class ProductItem extends StatelessWidget {
     );
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 14,
-            offset: const Offset(0, 8),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.all(12),
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   child: SizedBox(
-                    width: 78,
-                    height: 78,
-                    child: _ProductImage(source: product.thumbnail),
+                    width: 84,
+                    height: 84,
+                    child: AppNetworkImage(
+                      imageUrl: product.thumbnail,
+                      fallbackIcon: Icons.shopping_bag_outlined,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -59,7 +73,7 @@ class ProductItem extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: colorScheme.onSurface,
                         ),
                       ),
@@ -70,7 +84,8 @@ class ProductItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: colorScheme.primary,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 7),
@@ -84,7 +99,7 @@ class ProductItem extends StatelessWidget {
                           ),
                           _MetaText(
                             icon: Icons.inventory_2_outlined,
-                            label: 'Stock ${product.stock}',
+                            label: 'Kho ${product.stock}',
                           ),
                         ],
                       ),
@@ -92,70 +107,36 @@ class ProductItem extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: colorScheme.onSurfaceVariant,
-                  size: 18,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onToggleFavourite != null)
+                      IconButton(
+                        tooltip: isFavourite
+                            ? 'Bỏ yêu thích'
+                            : 'Thêm vào yêu thích',
+                        onPressed: onToggleFavourite,
+                        icon: Icon(
+                          isFavourite ? Icons.favorite : Icons.favorite_border,
+                        ),
+                      ),
+                    IconButton.filledTonal(
+                      tooltip: 'Thêm vào giỏ hàng',
+                      onPressed: onAddToCart,
+                      icon: const Icon(Icons.add_shopping_cart_rounded),
+                    ),
+                    const SizedBox(height: 6),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: colorScheme.onSurfaceVariant,
+                      size: 16,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ProductImage extends StatelessWidget {
-  final String source;
-
-  const _ProductImage({required this.source});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (source.startsWith('http')) {
-      return Image.network(
-        source,
-        fit: BoxFit.cover,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2.4,
-              color: colorScheme.primary,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return _ImageFallback(colorScheme: colorScheme);
-        },
-      );
-    }
-
-    return Image.asset(
-      source,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return _ImageFallback(colorScheme: colorScheme);
-      },
-    );
-  }
-}
-
-class _ImageFallback extends StatelessWidget {
-  final ColorScheme colorScheme;
-
-  const _ImageFallback({required this.colorScheme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: colorScheme.primary.withValues(alpha: 0.1),
-      child: Icon(
-        Icons.image_not_supported_outlined,
-        color: colorScheme.primary,
       ),
     );
   }

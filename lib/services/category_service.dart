@@ -19,7 +19,7 @@ class CategoryService {
           .map(Category.fromJson)
           .toList();
     } catch (_) {
-      throw Exception('Khong the tai danh muc san pham');
+      throw Exception('Không thể tải danh mục sản phẩm');
     }
   }
 }

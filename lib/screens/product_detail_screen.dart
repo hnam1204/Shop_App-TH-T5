@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../models/app_product_snapshot.dart';
 import '../models/product.dart';
+import '../providers/cart_provider.dart';
+import '../providers/favourite_provider.dart';
 import '../services/product_service.dart';
 import '../widgets/app_state_widgets.dart';
+import '../widgets/app_network_image.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int? productId;
@@ -43,12 +48,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Detail')),
+      appBar: AppBar(title: const Text('Chi tiết sản phẩm')),
       body: FutureBuilder<Product>(
         future: _productFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'Dang tai chi tiet...');
+            return const LoadingState(message: 'Đang tải chi tiết...');
           }
 
           if (snapshot.hasError) {
@@ -60,7 +65,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
           final product = snapshot.data;
           if (product == null) {
-            return const EmptyState(message: 'Khong tim thay san pham');
+            return const EmptyState(message: 'Không tìm thấy sản phẩm');
           }
 
           return _ProductDetailContent(product: product);
@@ -70,13 +75,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 }
 
-class _ProductDetailContent extends StatelessWidget {
+class _ProductDetailContent extends ConsumerWidget {
   final Product product;
 
   const _ProductDetailContent({required this.product});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final formatter = NumberFormat.currency(
       locale: 'en_US',
@@ -88,205 +93,197 @@ class _ProductDetailContent extends StatelessWidget {
         : product.thumbnail.isNotEmpty
         ? [product.thumbnail]
         : <String>[];
+    final appProduct = AppProductSnapshot.fromApi(product);
+    final isFavourite = ref.watch(isFavouriteProvider(appProduct.compositeKey));
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.shadow.withValues(alpha: 0.07),
-                    blurRadius: 18,
-                    offset: const Offset(0, 10),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.shadow.withValues(alpha: 0.06),
+                          blurRadius: 14,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 1.15,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: AppNetworkImage(
+                          imageUrl: product.thumbnail,
+                          fit: BoxFit.contain,
+                          fallbackIcon: Icons.shopping_bag_outlined,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (images.length > 1) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 76,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: images.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: SizedBox(
+                              width: 76,
+                              height: 76,
+                              child: AppNetworkImage(
+                                imageUrl: images[index],
+                                fit: BoxFit.contain,
+                                fallbackIcon: Icons.shopping_bag_outlined,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _ChipLabel(label: product.category),
+                      if (product.brand.isNotEmpty)
+                        _ChipLabel(label: product.brand),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    product.title,
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    formatter.format(product.price),
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _InfoTile(
+                          icon: Icons.percent_rounded,
+                          title: 'Giảm giá',
+                          value:
+                              '${product.discountPercentage.toStringAsFixed(1)}%',
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _InfoTile(
+                          icon: Icons.star_rounded,
+                          title: 'Đánh giá',
+                          value: product.rating.toStringAsFixed(1),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _InfoTile(
+                          icon: Icons.inventory_2_outlined,
+                          title: 'Tồn kho',
+                          value: product.stock.toString(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Mô tả',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    product.description,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.45,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ],
               ),
-              child: AspectRatio(
-                aspectRatio: 1.15,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: _ProductImage(source: product.thumbnail),
-                ),
-              ),
             ),
-            if (images.length > 1) ...[
-              const SizedBox(height: 14),
-              SizedBox(
-                height: 76,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: images.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 10),
-                  itemBuilder: (context, index) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: SizedBox(
-                        width: 76,
-                        height: 76,
-                        child: _ProductImage(source: images[index]),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-            const SizedBox(height: 22),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _ChipLabel(label: product.category),
-                if (product.brand.isNotEmpty) _ChipLabel(label: product.brand),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              product.title,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w900,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              formatter.format(product.price),
-              style: TextStyle(
-                color: colorScheme.primary,
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _InfoTile(
-                    icon: Icons.percent_rounded,
-                    title: 'Discount',
-                    value: '${product.discountPercentage.toStringAsFixed(1)}%',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _InfoTile(
-                    icon: Icons.star_rounded,
-                    title: 'Rating',
-                    value: product.rating.toStringAsFixed(1),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _InfoTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: 'Stock',
-                    value: product.stock.toString(),
-                  ),
+          ),
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
                 ),
               ],
             ),
-            const SizedBox(height: 22),
-            Text(
-              'Description',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              product.description,
-              style: TextStyle(
-                color: colorScheme.onSurfaceVariant,
-                height: 1.45,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 26),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.add_shopping_cart_rounded),
-                label: const Text('Add to Cart'),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Đã thêm vào giỏ hàng'),
-                      behavior: SnackBarBehavior.floating,
+            child: Row(
+              children: [
+                IconButton.filledTonal(
+                  tooltip: isFavourite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích',
+                  onPressed: () =>
+                      ref.read(favouriteProvider.notifier).toggle(appProduct),
+                  icon: Icon(
+                    isFavourite ? Icons.favorite : Icons.favorite_border,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.add_shopping_cart_rounded),
+                      label: const Text('Thêm vào giỏ hàng'),
+                      onPressed: () async {
+                        await ref
+                            .read(cartProvider.notifier)
+                            .addProduct(appProduct);
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Đã thêm vào giỏ hàng'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProductImage extends StatelessWidget {
-  final String source;
-
-  const _ProductImage({required this.source});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (source.startsWith('http')) {
-      return Image.network(
-        source,
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: colorScheme.primary,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return _ImageFallback(colorScheme: colorScheme);
-        },
-      );
-    }
-
-    return Image.asset(
-      source,
-      fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) {
-        return _ImageFallback(colorScheme: colorScheme);
-      },
-    );
-  }
-}
-
-class _ImageFallback extends StatelessWidget {
-  final ColorScheme colorScheme;
-
-  const _ImageFallback({required this.colorScheme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: colorScheme.primary.withValues(alpha: 0.08),
-      alignment: Alignment.center,
-      child: Icon(
-        Icons.image_not_supported_outlined,
-        color: colorScheme.primary,
-        size: 42,
+          ),
+        ],
       ),
     );
   }
@@ -302,7 +299,7 @@ class _ChipLabel extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
@@ -313,7 +310,7 @@ class _ChipLabel extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: colorScheme.primary,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -339,19 +336,19 @@ class _InfoTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 7),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         children: [
           Icon(icon, color: colorScheme.primary, size: 22),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             title,
             maxLines: 1,
@@ -362,14 +359,14 @@ class _InfoTile extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: colorScheme.onSurface,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

@@ -46,7 +46,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     final width = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Categories')),
+      appBar: AppBar(title: const Text('Danh mục')),
       body: FutureBuilder<List<Category>>(
         future: _categoriesFuture,
         builder: (context, snapshot) {
@@ -67,12 +67,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
           }
 
           return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             itemCount: categories.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: width >= 600 ? 3 : 2,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
               childAspectRatio: width < 360 ? 0.92 : 1,
             ),
             itemBuilder: (context, index) {

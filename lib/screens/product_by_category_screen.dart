@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/app_product_snapshot.dart';
 import '../models/product.dart';
+import '../providers/cart_provider.dart';
+import '../providers/favourite_provider.dart';
 import '../services/product_service.dart';
 import '../widgets/app_state_widgets.dart';
 import '../widgets/product_item.dart';
 import 'product_detail_screen.dart';
 
-class ProductByCategoryScreen extends StatefulWidget {
+class ProductByCategoryScreen extends ConsumerStatefulWidget {
   final String categoryName;
   final String slug;
 
@@ -17,11 +21,12 @@ class ProductByCategoryScreen extends StatefulWidget {
   });
 
   @override
-  State<ProductByCategoryScreen> createState() =>
+  ConsumerState<ProductByCategoryScreen> createState() =>
       _ProductByCategoryScreenState();
 }
 
-class _ProductByCategoryScreenState extends State<ProductByCategoryScreen> {
+class _ProductByCategoryScreenState
+    extends ConsumerState<ProductByCategoryScreen> {
   final ProductService _productService = ProductService();
   late Future<List<Product>> _productsFuture;
 
@@ -46,6 +51,19 @@ class _ProductByCategoryScreenState extends State<ProductByCategoryScreen> {
     );
   }
 
+  Future<void> _addToCart(Product product) async {
+    await ref
+        .read(cartProvider.notifier)
+        .addProduct(AppProductSnapshot.fromApi(product));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Đã thêm "${product.title}" vào giỏ hàng'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +72,7 @@ class _ProductByCategoryScreenState extends State<ProductByCategoryScreen> {
         future: _productsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'Dang tai san pham...');
+            return const LoadingState(message: 'Đang tải sản phẩm...');
           }
 
           if (snapshot.hasError) {
@@ -66,7 +84,7 @@ class _ProductByCategoryScreenState extends State<ProductByCategoryScreen> {
 
           final products = snapshot.data ?? [];
           if (products.isEmpty) {
-            return const EmptyState(message: 'Danh muc nay chua co san pham');
+            return const EmptyState(message: 'Danh mục này chưa có sản phẩm');
           }
 
           return ListView.builder(
@@ -74,9 +92,17 @@ class _ProductByCategoryScreenState extends State<ProductByCategoryScreen> {
             itemCount: products.length,
             itemBuilder: (context, index) {
               final product = products[index];
+              final appProduct = AppProductSnapshot.fromApi(product);
+              final isFavourite = ref.watch(
+                isFavouriteProvider(appProduct.compositeKey),
+              );
               return ProductItem(
                 product: product,
                 onTap: () => _openDetail(product),
+                onAddToCart: () => _addToCart(product),
+                isFavourite: isFavourite,
+                onToggleFavourite: () =>
+                    ref.read(favouriteProvider.notifier).toggle(appProduct),
               );
             },
           );

@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/user_model.dart';
+import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
 import '../widgets/custom_text_field.dart';
 import 'main_screen.dart';
@@ -17,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -59,50 +62,39 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email == LoginScreen.demoEmail &&
-        password == LoginScreen.demoPassword) {
-      setState(() {
-        _isLoggingIn = true;
-      });
+    setState(() {
+      _isLoggingIn = true;
+    });
 
-      try {
-        final currentUser =
-            (await LocalStorageService.getCurrentUser()) ??
-            UserModel(
-              id: 'demo-user',
-              fullName: 'Nguyen Hai Nam',
-              email: email,
-              password: password,
-              phone: '037 905 2767',
-              address: 'Ho Chi Minh City',
-            );
+    try {
+      final credential = await _authService.loginUser(
+        email: email,
+        password: password,
+      );
+      final firebaseUser = credential.user;
+      final userData = firebaseUser == null
+          ? null
+          : await _authService.getUserData(firebaseUser.uid);
 
-        final updatedUser = currentUser.copyWith(
-          email: email,
-          password: password,
-        );
+      final currentUser = UserModel(
+        id: firebaseUser?.uid ?? '',
+        fullName:
+            userData?['fullName']?.toString() ??
+            firebaseUser?.displayName ??
+            'User',
+        email: userData?['email']?.toString() ?? email,
+        password: password,
+        phone: userData?['phone']?.toString() ?? '',
+      );
 
-        await LocalStorageService.saveCurrentUser(updatedUser);
-        await LocalStorageService.saveLoginStatus(true);
-        await LocalStorageService.addLoginHistory(email);
+      await LocalStorageService.saveCurrentUser(currentUser);
+      await LocalStorageService.saveLoginStatus(true);
+      await LocalStorageService.addLoginHistory(email);
 
-        if (_rememberMe) {
-          await LocalStorageService.saveRememberLogin(email, password, true);
-        } else {
-          await LocalStorageService.clearRememberLogin();
-        }
-      } catch (error) {
-        if (!mounted) return;
-        setState(() {
-          _isLoggingIn = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error.toString()),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        return;
+      if (_rememberMe) {
+        await LocalStorageService.saveRememberLogin(email, password, true);
+      } else {
+        await LocalStorageService.clearRememberLogin();
       }
 
       if (!mounted) return;
@@ -111,15 +103,20 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (_) => const MainScreen()),
       );
       return;
+    } on FirebaseAuthException catch (error) {
+      _showLoginError(_firebaseLoginMessage(error.code));
+    } catch (error) {
+      _showLoginError('Đăng nhập thất bại: $error');
     }
+  }
 
+  void _showLoginError(String message) {
+    if (!mounted) return;
+    setState(() {
+      _isLoggingIn = false;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Email ho\u1eb7c m\u1eadt kh\u1ea9u kh\u00f4ng \u0111\u00fang',
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
   }
 
@@ -145,10 +142,10 @@ class _LoginScreenState extends State<LoginScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
+              padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 56,
+                  minHeight: constraints.maxHeight - 48,
                 ),
                 child: Center(
                   child: ConstrainedBox(
@@ -157,41 +154,48 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width: 76,
-                          height: 76,
+                          width: 72,
+                          height: 72,
                           decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            borderRadius: BorderRadius.circular(24),
+                            gradient: LinearGradient(
+                              colors: [
+                                colorScheme.primary,
+                                colorScheme.secondary,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
                                 color: colorScheme.primary.withValues(
-                                  alpha: 0.26,
+                                  alpha: 0.22,
                                 ),
-                                blurRadius: 22,
-                                offset: const Offset(0, 12),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
                             ],
                           ),
                           child: Icon(
                             Icons.shopping_bag_rounded,
                             color: colorScheme.onPrimary,
-                            size: 42,
+                            size: 40,
                           ),
                         ),
-                        const SizedBox(height: 26),
+                        const SizedBox(height: 24),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(22),
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             color: colorScheme.surface,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
                                 color: colorScheme.shadow.withValues(
-                                  alpha: 0.08,
+                                  alpha: 0.07,
                                 ),
-                                blurRadius: 24,
-                                offset: const Offset(0, 12),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
                               ),
                             ],
                           ),
@@ -201,19 +205,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Welcome Back',
+                                  'Chào mừng trở lại',
                                   style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w900,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w700,
                                     color: colorScheme.onSurface,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 8),
                                 Text(
-                                  'Sign in to continue shopping.',
+                                  'Đăng nhập để tiếp tục mua sắm.',
                                   style: TextStyle(
                                     color: colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                                 const SizedBox(height: 24),
@@ -224,15 +228,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                   keyboardType: TextInputType.emailAddress,
                                   validator: _validateEmail,
                                 ),
-                                const SizedBox(height: 14),
+                                const SizedBox(height: 16),
                                 CustomTextField(
                                   controller: _passwordController,
-                                  label: 'Password',
+                                  label: 'Mật khẩu',
                                   icon: Icons.lock_outline,
                                   obscureText: _hidePassword,
                                   textInputAction: TextInputAction.done,
                                   suffixIcon: IconButton(
-                                    tooltip: _hidePassword ? 'Show' : 'Hide',
+                                    tooltip: _hidePassword ? 'Hiện' : 'Ẩn',
                                     icon: Icon(
                                       _hidePassword
                                           ? Icons.visibility_outlined
@@ -246,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'M\u1eadt kh\u1ea9u kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ed1ng';
+                                      return 'Mật khẩu không được trống';
                                     }
                                     return null;
                                   },
@@ -263,51 +267,51 @@ class _LoginScreenState extends State<LoginScreen> {
                                     });
                                   },
                                   title: Text(
-                                    'Remember Me',
+                                    'Ghi nhớ đăng nhập',
                                     style: TextStyle(
                                       color: colorScheme.onSurface,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 22),
+                                const SizedBox(height: 24),
                                 SizedBox(
                                   width: double.infinity,
+                                  height: 52,
                                   child: ElevatedButton(
                                     onPressed: _isLoggingIn ? null : _login,
                                     child: _isLoggingIn
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             width: 20,
                                             height: 20,
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2.4,
+                                              color: colorScheme.onPrimary,
                                             ),
                                           )
-                                        : const Text(
-                                            '\u0110\u0103ng nh\u1eadp',
-                                          ),
+                                        : const Text('Đăng nhập'),
                                   ),
                                 ),
-                                const SizedBox(height: 18),
+                                const SizedBox(height: 16),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        'Ch\u01b0a c\u00f3 t\u00e0i kho\u1ea3n?',
+                                        'Chưa có tài khoản?',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           color: colorScheme.onSurfaceVariant,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                     ),
                                     TextButton(
                                       onPressed: _openRegister,
                                       child: const Text(
-                                        '\u0110\u0103ng k\u00fd t\u00e0i kho\u1ea3n',
+                                        'Đăng ký tài khoản',
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ),
@@ -332,12 +336,29 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _validateEmail(String? value) {
     final email = value?.trim() ?? '';
     if (email.isEmpty) {
-      return 'Email kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ed1ng';
+      return 'Email không được trống';
     }
     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     if (!emailRegex.hasMatch(email)) {
-      return 'Email kh\u00f4ng \u0111\u00fang \u0111\u1ecbnh d\u1ea1ng';
+      return 'Email không đúng định dạng';
     }
     return null;
+  }
+
+  String _firebaseLoginMessage(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return 'Email không đúng định dạng';
+      case 'user-disabled':
+        return 'Tài khoản này đã bị khóa';
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Email hoặc mật khẩu không đúng';
+      case 'network-request-failed':
+        return 'Không có kết nối mạng';
+      default:
+        return 'Đăng nhập thất bại. Vui lòng thử lại';
+    }
   }
 }

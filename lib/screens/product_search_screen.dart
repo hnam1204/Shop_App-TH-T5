@@ -1,21 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/app_product_snapshot.dart';
 import '../models/product.dart';
+import '../providers/cart_provider.dart';
+import '../providers/favourite_provider.dart';
 import '../services/product_service.dart';
 import '../widgets/app_state_widgets.dart';
 import '../widgets/product_item.dart';
 import 'product_detail_screen.dart';
 
-class ProductSearchScreen extends StatefulWidget {
+class ProductSearchScreen extends ConsumerStatefulWidget {
   const ProductSearchScreen({super.key});
 
   @override
-  State<ProductSearchScreen> createState() => _ProductSearchScreenState();
+  ConsumerState<ProductSearchScreen> createState() =>
+      _ProductSearchScreenState();
 }
 
-class _ProductSearchScreenState extends State<ProductSearchScreen> {
+class _ProductSearchScreenState extends ConsumerState<ProductSearchScreen> {
   final ProductService _productService = ProductService();
   final TextEditingController _searchController = TextEditingController();
 
@@ -24,6 +29,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   String _keyword = '';
+  String _searchText = '';
   int _requestId = 0;
 
   @override
@@ -34,14 +40,16 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
   }
 
   void _onKeywordChanged(String value) {
-    setState(() {});
+    setState(() {
+      _searchText = value;
+    });
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
-      _search(value.trim());
+      _searchProducts(value.trim());
     });
   }
 
-  Future<void> _search(String keyword) async {
+  Future<void> _searchProducts(String keyword) async {
     final currentRequest = ++_requestId;
     setState(() {
       _keyword = keyword;
@@ -81,6 +89,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
     _searchController.clear();
     _requestId++;
     setState(() {
+      _searchText = '';
       _keyword = '';
       _products = [];
       _errorMessage = null;
@@ -89,7 +98,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
   }
 
   void _retry() {
-    _search(_keyword);
+    _searchProducts(_keyword);
   }
 
   void _openDetail(Product product) {
@@ -101,27 +110,40 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
     );
   }
 
+  Future<void> _addToCart(Product product) async {
+    await ref
+        .read(cartProvider.notifier)
+        .addProduct(AppProductSnapshot.fromApi(product));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Đã thêm "${product.title}" vào giỏ hàng'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Search Products')),
+      appBar: AppBar(title: const Text('Tìm kiếm sản phẩm')),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: TextField(
               controller: _searchController,
               textInputAction: TextInputAction.search,
               onChanged: _onKeywordChanged,
-              onSubmitted: (value) => _search(value.trim()),
+              onSubmitted: (value) => _searchProducts(value.trim()),
               decoration: InputDecoration(
-                labelText: 'Search',
-                hintText: 'Phone, laptop, watch...',
+                labelText: 'Tìm kiếm',
+                hintText: 'Điện thoại, laptop, đồng hồ...',
                 prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: _searchController.text.isEmpty
+                suffixIcon: _searchText.isEmpty
                     ? null
                     : IconButton(
-                        tooltip: 'Clear',
+                        tooltip: 'Xóa tìm kiếm',
                         onPressed: _clearSearch,
                         icon: const Icon(Icons.close_rounded),
                       ),
@@ -138,12 +160,12 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
     if (_keyword.isEmpty) {
       return const EmptyState(
         icon: Icons.search_rounded,
-        message: 'Nhap ten san pham de tim kiem',
+        message: 'Nhập tên sản phẩm để tìm kiếm',
       );
     }
 
     if (_isLoading) {
-      return const LoadingState(message: 'Dang tim kiem...');
+      return const LoadingState(message: 'Đang tìm kiếm...');
     }
 
     if (_errorMessage != null) {
@@ -151,15 +173,29 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
     }
 
     if (_products.isEmpty) {
-      return const EmptyState(message: 'Khong tim thay san pham phu hop');
+      return const EmptyState(
+        icon: Icons.search_off_rounded,
+        message: 'Không tìm thấy sản phẩm phù hợp',
+      );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       itemCount: _products.length,
       itemBuilder: (context, index) {
         final product = _products[index];
-        return ProductItem(product: product, onTap: () => _openDetail(product));
+        final appProduct = AppProductSnapshot.fromApi(product);
+        final isFavourite = ref.watch(
+          isFavouriteProvider(appProduct.compositeKey),
+        );
+        return ProductItem(
+          product: product,
+          onTap: () => _openDetail(product),
+          onAddToCart: () => _addToCart(product),
+          isFavourite: isFavourite,
+          onToggleFavourite: () =>
+              ref.read(favouriteProvider.notifier).toggle(appProduct),
+        );
       },
     );
   }

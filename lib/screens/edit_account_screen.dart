@@ -81,7 +81,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Cap nhat tai khoan thanh cong'),
+        content: Text('Cập nhật tài khoản thành công'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -102,7 +102,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         appBar: _EditAccountAppBar(),
         body: EmptyState(
           icon: Icons.person_off_outlined,
-          message: 'Chua co du lieu nguoi dung',
+          message: 'Chưa có dữ liệu người dùng',
         ),
       );
     }
@@ -118,7 +118,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               children: [
                 CustomTextField(
                   controller: _fullNameController,
-                  label: 'Ho ten',
+                  label: 'Họ tên',
                   icon: Icons.badge_outlined,
                   validator: _required,
                 ),
@@ -133,7 +133,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 const SizedBox(height: 14),
                 CustomTextField(
                   controller: _phoneController,
-                  label: 'So dien thoai',
+                  label: 'Số điện thoại',
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   validator: _required,
@@ -141,7 +141,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 const SizedBox(height: 14),
                 CustomTextField(
                   controller: _addressController,
-                  label: 'Dia chi',
+                  label: 'Địa chỉ',
                   icon: Icons.location_on_outlined,
                   validator: _required,
                 ),
@@ -165,7 +165,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2.2),
                           )
                         : const Icon(Icons.save_outlined),
-                    label: Text(_isSaving ? 'Dang luu...' : 'Luu thay doi'),
+                    label: Text(_isSaving ? 'Đang lưu...' : 'Lưu thay đổi'),
                   ),
                 ),
               ],
@@ -178,7 +178,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
   String? _required(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Khong duoc de trong';
+      return 'Không được để trống';
     }
     return null;
   }
@@ -186,11 +186,11 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   String? _validateEmail(String? value) {
     final email = value?.trim() ?? '';
     if (email.isEmpty) {
-      return 'Email khong duoc de trong';
+      return 'Email không được để trống';
     }
     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     if (!emailRegex.hasMatch(email)) {
-      return 'Email khong dung dinh dang';
+      return 'Email không đúng định dạng';
     }
     return null;
   }
@@ -202,7 +202,7 @@ class _EditAccountAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(title: const Text('Edit Account'));
+    return AppBar(title: const Text('Chỉnh sửa tài khoản'));
   }
 
   @override

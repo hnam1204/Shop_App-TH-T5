@@ -4,6 +4,7 @@ import '../data/mockdata.dart';
 import '../widgets/banner_widget.dart';
 import '../widgets/category_card.dart';
 import 'product_by_category_screen.dart';
+import 'product_search_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback onViewProducts;
@@ -21,34 +22,66 @@ class HomeScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 112),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 14),
-          const BannerCarousel(banners: MockData.banners),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
-            child: Row(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    'Categories',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ),
                 Text(
-                  '${MockData.categories.length} items',
+                  'Xin chào,',
                   style: TextStyle(
                     color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  'Bạn muốn mua gì hôm nay?',
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProductSearchScreen(),
+                      ),
+                    );
+                  },
+                  child: IgnorePointer(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Tìm kiếm sản phẩm',
+                        hintText: 'Điện thoại, laptop, đồng hồ...',
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        suffixIcon: Icon(
+                          Icons.tune_rounded,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const BannerCarousel(banners: MockData.banners),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
+            child: _SectionHeader(
+              title: 'Danh mục',
+              actionText: '${MockData.categories.length} mục',
             ),
           ),
           Padding(
@@ -59,8 +92,8 @@ class HomeScreen extends StatelessWidget {
               itemCount: MockData.categories.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: width >= 600 ? 4 : 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
                 childAspectRatio: width < 360 ? 1 : 1.12,
               ),
               itemBuilder: (context, index) {
@@ -83,18 +116,98 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18, 24, 18, 0),
-            child: SizedBox(
+            padding: const EdgeInsets.fromLTRB(18, 24, 18, 12),
+            child: _SectionHeader(
+              title: 'Sản phẩm nổi bật',
+              actionText: 'Xem tất cả',
+              onActionTap: onViewProducts,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Container(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.storefront_rounded),
-                label: const Text('View Products'),
-                onPressed: onViewProducts,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.09),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Khám phá bộ sưu tập mới',
+                          style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Danh sách sản phẩm được cập nhật liên tục.',
+                          style: TextStyle(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: onViewProducts,
+                          child: const Text('Xem sản phẩm'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.shopping_bag_rounded,
+                    size: 54,
+                    color: colorScheme.primary,
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String? actionText;
+  final VoidCallback? onActionTap;
+
+  const _SectionHeader({
+    required this.title,
+    this.actionText,
+    this.onActionTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        if (actionText != null)
+          TextButton(onPressed: onActionTap, child: Text(actionText!)),
+      ],
     );
   }
 }

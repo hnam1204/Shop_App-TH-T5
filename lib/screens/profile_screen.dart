@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_assets.dart';
 import '../models/user_model.dart';
 import '../services/local_storage_service.dart';
+import '../widgets/app_network_image.dart';
 import '../widgets/app_state_widgets.dart';
 import 'edit_account_screen.dart';
 
@@ -49,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (user == null) {
           return const EmptyState(
             icon: Icons.person_off_outlined,
-            message: 'Chua co du lieu nguoi dung',
+            message: 'Chưa có dữ liệu người dùng',
           );
         }
 
@@ -116,13 +117,13 @@ class _ProfileContent extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onEdit,
               icon: const Icon(Icons.edit_outlined),
-              label: const Text('Edit Account'),
+              label: const Text('Chỉnh sửa tài khoản'),
             ),
           ),
           const SizedBox(height: 22),
           _ProfileInfoTile(
             icon: Icons.badge_outlined,
-            title: 'Ho ten',
+            title: 'Họ tên',
             value: user.fullName,
           ),
           _ProfileInfoTile(
@@ -132,13 +133,13 @@ class _ProfileContent extends StatelessWidget {
           ),
           _ProfileInfoTile(
             icon: Icons.phone_outlined,
-            title: 'So dien thoai',
-            value: user.phone.isEmpty ? 'Chua cap nhat' : user.phone,
+            title: 'Số điện thoại',
+            value: user.phone.isEmpty ? 'Chưa cập nhật' : user.phone,
           ),
           _ProfileInfoTile(
             icon: Icons.location_on_outlined,
-            title: 'Dia chi',
-            value: user.address.isEmpty ? 'Chua cap nhat' : user.address,
+            title: 'Địa chỉ',
+            value: user.address.isEmpty ? 'Chưa cập nhật' : user.address,
           ),
         ],
       ),
@@ -153,45 +154,14 @@ class _ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final avatarUrl = user.avatarUrl.trim();
 
-    if (avatarUrl.startsWith('http')) {
-      return Image.network(
-        avatarUrl,
-        width: 116,
-        height: 116,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _AvatarFallback(colorScheme: colorScheme);
-        },
-      );
-    }
-
-    return Image.asset(
-      AppAssets.avatar,
+    return AppNetworkImage(
+      imageUrl: avatarUrl.isEmpty ? AppAssets.avatar : avatarUrl,
       width: 116,
       height: 116,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return _AvatarFallback(colorScheme: colorScheme);
-      },
-    );
-  }
-}
-
-class _AvatarFallback extends StatelessWidget {
-  final ColorScheme colorScheme;
-
-  const _AvatarFallback({required this.colorScheme});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 116,
-      height: 116,
-      color: colorScheme.surface,
-      child: Icon(Icons.person_rounded, size: 68, color: colorScheme.primary),
+      fallbackIcon: Icons.person_rounded,
     );
   }
 }

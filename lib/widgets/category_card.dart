@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_assets.dart';
 import '../models/category.dart';
+import 'app_network_image.dart';
 
 class CategoryCard extends StatelessWidget {
   final Category category;
@@ -44,19 +45,10 @@ class CategoryCard extends StatelessWidget {
                 height: 72,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(18),
-                  child: Image.asset(
-                    imagePath,
+                  child: AppNetworkImage(
+                    imageUrl: imagePath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
-                        child: Icon(
-                          Icons.category_rounded,
-                          color: colorScheme.primary,
-                          size: 34,
-                        ),
-                      );
-                    },
+                    fallbackIcon: Icons.category_rounded,
                   ),
                 ),
               ),

@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
+import 'app_network_image.dart';
+
 class BannerCarousel extends StatelessWidget {
   final List<String> banners;
 
@@ -37,42 +39,11 @@ class BannerCarousel extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  image,
+                child: AppNetworkImage(
+                  imageUrl: image,
                   fit: BoxFit.cover,
                   width: double.infinity,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [colorScheme.primary, colorScheme.secondary],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.shopping_bag_outlined,
-                            color: colorScheme.onPrimary,
-                            size: 44,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Shop App Banner',
-                            style: TextStyle(
-                              color: colorScheme.onPrimary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  fallbackIcon: Icons.shopping_bag_outlined,
                 ),
               ),
             );

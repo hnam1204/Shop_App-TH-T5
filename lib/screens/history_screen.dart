@@ -122,13 +122,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const LoadingState(message: 'Dang tai lich su...');
+      return const LoadingState(message: 'Đang tải lịch sử...');
     }
 
     if (_history.isEmpty) {
       return const EmptyState(
         icon: Icons.history_rounded,
-        message: 'Chua co lich su dang nhap',
+        message: 'Chưa có lịch sử đăng nhập',
       );
     }
 
@@ -177,7 +177,7 @@ class _HistoryHeader extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'Login History',
+              'Lịch sử đăng nhập',
               style: TextStyle(
                 color: colorScheme.onPrimary,
                 fontWeight: FontWeight.w900,
@@ -186,7 +186,7 @@ class _HistoryHeader extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Clear history',
+            tooltip: 'Xóa lịch sử',
             onPressed: onClear,
             icon: Icon(
               Icons.delete_outline_rounded,
@@ -292,7 +292,7 @@ class _HistoryItem extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 IconButton(
-                  tooltip: 'View detail',
+                  tooltip: 'Xem chi tiết',
                   onPressed: onTap,
                   icon: Icon(
                     Icons.chevron_right_rounded,

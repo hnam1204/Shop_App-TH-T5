@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_assets.dart';
 import '../models/user_model.dart';
 import '../services/local_storage_service.dart';
+import '../widgets/app_network_image.dart';
 import '../widgets/app_state_widgets.dart';
 
 class AccountTab extends StatelessWidget {
@@ -21,7 +22,7 @@ class AccountTab extends StatelessWidget {
         if (user == null) {
           return const EmptyState(
             icon: Icons.person_off_outlined,
-            message: 'Chua co du lieu nguoi dung',
+            message: 'Chưa có dữ liệu người dùng',
           );
         }
 
@@ -47,7 +48,7 @@ class _AccountContent extends StatelessWidget {
         const SizedBox(height: 24),
         _AccountTile(
           icon: Icons.person_outline,
-          title: 'Ho ten',
+          title: 'Họ tên',
           value: user.fullName,
           colorScheme: colorScheme,
         ),
@@ -59,14 +60,14 @@ class _AccountContent extends StatelessWidget {
         ),
         _AccountTile(
           icon: Icons.phone_outlined,
-          title: 'So dien thoai',
-          value: user.phone.isEmpty ? 'Chua cap nhat' : user.phone,
+          title: 'Số điện thoại',
+          value: user.phone.isEmpty ? 'Chưa cập nhật' : user.phone,
           colorScheme: colorScheme,
         ),
         _AccountTile(
           icon: Icons.location_on_outlined,
-          title: 'Dia chi',
-          value: user.address.isEmpty ? 'Chua cap nhat' : user.address,
+          title: 'Địa chỉ',
+          value: user.address.isEmpty ? 'Chưa cập nhật' : user.address,
           colorScheme: colorScheme,
         ),
       ],
@@ -83,13 +84,13 @@ class _AccountAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final avatarUrl = user.avatarUrl.trim();
 
-    if (avatarUrl.startsWith('http')) {
-      return CircleAvatar(radius: 40, backgroundImage: NetworkImage(avatarUrl));
-    }
-
-    return const CircleAvatar(
-      radius: 40,
-      backgroundImage: AssetImage(AppAssets.avatar),
+    return ClipOval(
+      child: AppNetworkImage(
+        imageUrl: avatarUrl.isEmpty ? AppAssets.avatar : avatarUrl,
+        width: 80,
+        height: 80,
+        fallbackIcon: Icons.person_rounded,
+      ),
     );
   }
 }

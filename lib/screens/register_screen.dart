@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
 import '../widgets/custom_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -10,6 +12,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -18,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _hidePassword = true;
   bool _hideConfirmPassword = true;
+  bool _isRegistering = false;
 
   @override
   void dispose() {
@@ -33,16 +37,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('\u0110\u0103ng k\u00fd th\u00e0nh c\u00f4ng'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    setState(() {
+      _isRegistering = true;
+    });
 
-    await Future.delayed(const Duration(milliseconds: 700));
+    try {
+      await _authService.registerUser(
+        fullName: _fullNameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        phone: _phoneController.text.trim(),
+      );
+      await _authService.logout();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 700));
+      if (!mounted) return;
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (error) {
+      _showRegisterError(_firebaseRegisterMessage(error.code));
+    } catch (error) {
+      _showRegisterError('Đăng ký thất bại: $error');
+    }
+  }
+
+  void _showRegisterError(String message) {
     if (!mounted) return;
-    Navigator.pop(context);
+    setState(() {
+      _isRegistering = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    );
   }
 
   @override
@@ -50,30 +83,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('\u0110\u0103ng k\u00fd')),
+      appBar: AppBar(title: const Text('Đăng ký')),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 22, 20, 28),
+              padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 50,
+                  minHeight: constraints.maxHeight - 48,
                 ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 430),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(22),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: colorScheme.surface,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.shadow.withValues(alpha: 0.08),
-                            blurRadius: 24,
-                            offset: const Offset(0, 12),
+                            color: colorScheme.shadow.withValues(alpha: 0.07),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
@@ -83,34 +116,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Create Account',
+                              'Tạo tài khoản',
                               style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w900,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w700,
                                 color: colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             Text(
-                              'Register with mock data only.',
+                              'Nhập thông tin để tạo tài khoản mua sắm.',
                               style: TextStyle(
                                 color: colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                             const SizedBox(height: 24),
                             CustomTextField(
                               controller: _fullNameController,
-                              label: 'H\u1ecd t\u00ean',
+                              label: 'Họ tên',
                               icon: Icons.badge_outlined,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'H\u1ecd t\u00ean kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ed1ng';
+                                  return 'Họ tên không được trống';
                                 }
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             CustomTextField(
                               controller: _emailController,
                               label: 'Email',
@@ -118,27 +151,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               keyboardType: TextInputType.emailAddress,
                               validator: _validateEmail,
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             CustomTextField(
                               controller: _phoneController,
-                              label: 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i',
+                              label: 'Số điện thoại',
                               icon: Icons.phone_outlined,
                               keyboardType: TextInputType.phone,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ed1ng';
+                                  return 'Số điện thoại không được trống';
                                 }
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             CustomTextField(
                               controller: _passwordController,
-                              label: 'M\u1eadt kh\u1ea9u',
+                              label: 'Mật khẩu',
                               icon: Icons.lock_outline,
                               obscureText: _hidePassword,
                               suffixIcon: IconButton(
-                                tooltip: _hidePassword ? 'Show' : 'Hide',
+                                tooltip: _hidePassword ? 'Hiện' : 'Ẩn',
                                 icon: Icon(
                                   _hidePassword
                                       ? Icons.visibility_outlined
@@ -153,23 +186,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               validator: (value) {
                                 final password = value ?? '';
                                 if (password.isEmpty) {
-                                  return 'M\u1eadt kh\u1ea9u kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ed1ng';
+                                  return 'Mật khẩu không được trống';
                                 }
                                 if (password.length < 6) {
-                                  return 'M\u1eadt kh\u1ea9u t\u1ed1i thi\u1ec3u 6 k\u00fd t\u1ef1';
+                                  return 'Mật khẩu tối thiểu 6 ký tự';
                                 }
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             CustomTextField(
                               controller: _confirmPasswordController,
-                              label: 'X\u00e1c nh\u1eadn m\u1eadt kh\u1ea9u',
+                              label: 'Xác nhận mật khẩu',
                               icon: Icons.verified_user_outlined,
                               obscureText: _hideConfirmPassword,
                               textInputAction: TextInputAction.done,
                               suffixIcon: IconButton(
-                                tooltip: _hideConfirmPassword ? 'Show' : 'Hide',
+                                tooltip: _hideConfirmPassword ? 'Hiện' : 'Ẩn',
                                 icon: Icon(
                                   _hideConfirmPassword
                                       ? Icons.visibility_outlined
@@ -184,20 +217,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Vui l\u00f2ng x\u00e1c nh\u1eadn m\u1eadt kh\u1ea9u';
+                                  return 'Vui lòng xác nhận mật khẩu';
                                 }
                                 if (value != _passwordController.text) {
-                                  return 'X\u00e1c nh\u1eadn m\u1eadt kh\u1ea9u kh\u00f4ng kh\u1edbp';
+                                  return 'Xác nhận mật khẩu không khớp';
                                 }
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 22),
+                            const SizedBox(height: 24),
                             SizedBox(
                               width: double.infinity,
+                              height: 52,
                               child: ElevatedButton(
-                                onPressed: _register,
-                                child: const Text('\u0110\u0103ng k\u00fd'),
+                                onPressed: _isRegistering ? null : _register,
+                                child: _isRegistering
+                                    ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.4,
+                                          color: colorScheme.onPrimary,
+                                        ),
+                                      )
+                                    : const Text('Đăng ký'),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -205,8 +248,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               child: TextButton(
                                 onPressed: () => Navigator.pop(context),
                                 child: const Text(
-                                  'Quay l\u1ea1i \u0110\u0103ng nh\u1eadp',
-                                  style: TextStyle(fontWeight: FontWeight.w800),
+                                  'Quay lại đăng nhập',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -227,12 +270,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _validateEmail(String? value) {
     final email = value?.trim() ?? '';
     if (email.isEmpty) {
-      return 'Email kh\u00f4ng \u0111\u01b0\u1ee3c tr\u1ed1ng';
+      return 'Email không được trống';
     }
     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     if (!emailRegex.hasMatch(email)) {
-      return 'Email kh\u00f4ng \u0111\u00fang \u0111\u1ecbnh d\u1ea1ng';
+      return 'Email không đúng định dạng';
     }
     return null;
+  }
+
+  String _firebaseRegisterMessage(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return 'Email này đã được đăng ký';
+      case 'invalid-email':
+        return 'Email không đúng định dạng';
+      case 'weak-password':
+        return 'Mật khẩu quá yếu, vui lòng nhập ít nhất 6 ký tự';
+      case 'network-request-failed':
+        return 'Không có kết nối mạng';
+      default:
+        return 'Đăng ký thất bại. Vui lòng thử lại';
+    }
   }
 }

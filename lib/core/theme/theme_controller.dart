@@ -13,7 +13,9 @@ Future<void> setThemeMode(ThemeMode mode) async {
   await LocalStorageService.saveThemeMode(mode);
 }
 
-const _seedColor = Color(0xFF4F46E5);
+const _seedColor = Color(0xFF635BFF);
+const _radiusSmall = 10.0;
+const _radiusMedium = 14.0;
 
 final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
@@ -22,7 +24,7 @@ final ThemeData lightTheme = ThemeData(
     primary: _seedColor,
     secondary: const Color(0xFF06B6D4),
   ),
-  scaffoldBackgroundColor: const Color(0xFFF6F8FC),
+  scaffoldBackgroundColor: const Color(0xFFF7F7FB),
   appBarTheme: AppBarTheme(
     centerTitle: true,
     elevation: 0,
@@ -63,17 +65,29 @@ final ThemeData lightTheme = ThemeData(
   drawerTheme: const DrawerThemeData(backgroundColor: Colors.white),
   cardTheme: CardThemeData(
     color: Colors.white,
-    elevation: 0,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    elevation: 2,
+    shadowColor: const Color(0x14000000),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(_radiusMedium),
+    ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: _seedColor,
       foregroundColor: Colors.white,
-      elevation: 4,
-      shadowColor: const Color(0x554F46E5),
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      shadowColor: const Color(0x334F46E5),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+    ),
+  ),
+  filledButtonTheme: FilledButtonThemeData(
+    style: FilledButton.styleFrom(
+      backgroundColor: _seedColor,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
     ),
   ),
@@ -81,24 +95,26 @@ final ThemeData lightTheme = ThemeData(
     filled: true,
     fillColor: const Color(0xFFF8FAFC),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
+    labelStyle: const TextStyle(fontWeight: FontWeight.w600),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: BorderSide.none,
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: _seedColor, width: 1.4),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: Color(0xFFEF4444)),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.4),
     ),
   ),
@@ -155,17 +171,29 @@ final ThemeData darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
   drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF1A1A26)),
   cardTheme: CardThemeData(
     color: const Color(0xFF1E1E2C),
-    elevation: 0,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    elevation: 2,
+    shadowColor: const Color(0x50000000),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(_radiusMedium),
+    ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: _seedColor,
       foregroundColor: Colors.white,
-      elevation: 4,
-      shadowColor: const Color(0x554F46E5),
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      shadowColor: const Color(0x334F46E5),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+    ),
+  ),
+  filledButtonTheme: FilledButtonThemeData(
+    style: FilledButton.styleFrom(
+      backgroundColor: _seedColor,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
     ),
   ),
@@ -173,24 +201,26 @@ final ThemeData darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
     filled: true,
     fillColor: const Color(0xFF2C2C3E),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    floatingLabelBehavior: FloatingLabelBehavior.auto,
+    labelStyle: const TextStyle(fontWeight: FontWeight.w600),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: BorderSide.none,
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: Color(0xFF3F3F5A)),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: _seedColor, width: 1.4),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: Color(0xFFEF4444)),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(_radiusSmall),
       borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.4),
     ),
   ),

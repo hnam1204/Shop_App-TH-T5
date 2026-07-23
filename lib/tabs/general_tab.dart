@@ -41,7 +41,9 @@ class _GeneralTabState extends State<GeneralTab> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Hay dang nhap voi Remember Me truoc'),
+            content: Text(
+              'Hãy đăng nhập trước khi bật tính năng tự động đăng nhập.',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
