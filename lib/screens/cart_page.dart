@@ -3,19 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../providers/cart_provider.dart';
-import '../services/payment_service.dart';
 import '../widgets/app_network_image.dart';
 import '../widgets/app_state_widgets.dart';
-import 'sqlite/payment_history_page.dart';
+import 'checkout_page.dart';
+import 'product_screen.dart';
 
 class CartPage extends ConsumerWidget {
-  const CartPage({super.key});
+  final bool embeddedInNavigation;
+
+  const CartPage({super.key, this.embeddedInNavigation = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: !embeddedInNavigation,
         title: const Text('Giỏ hàng'),
         actions: [
           IconButton(
@@ -35,9 +38,14 @@ class CartPage extends ConsumerWidget {
             onRetry: () => ref.read(cartProvider.notifier).reload(),
           ),
           data: (state) => state.isEmpty
-              ? const EmptyState(
-                  message: 'Giỏ hàng đang trống.',
+              ? EmptyState(
+                  message: 'Giỏ hàng của bạn đang trống',
                   icon: Icons.shopping_cart_outlined,
+                  actionLabel: 'Khám phá sản phẩm',
+                  onAction: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProductScreen()),
+                  ),
                 )
               : _CartContent(state: state),
         ),
@@ -197,7 +205,7 @@ class _CartSummary extends ConsumerWidget {
                     ? null
                     : () => _checkout(context, ref),
                 icon: const Icon(Icons.payments_outlined),
-                label: const Text('Thanh toán'),
+                label: const Text('Tiến hành thanh toán'),
               ),
             ],
           ),
@@ -207,26 +215,11 @@ class _CartSummary extends ConsumerWidget {
   }
 
   Future<void> _checkout(BuildContext context, WidgetRef ref) async {
-    try {
-      final result = await PaymentService().checkout();
-      await ref.read(cartProvider.notifier).reload();
-      if (!context.mounted) return;
-      _message(
-        context,
-        result.warning ?? 'Thanh toán thành công.',
-        error: result.warning != null,
-      );
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const PaymentHistoryPage()),
-      );
-    } on CheckoutException catch (error) {
-      if (context.mounted) _message(context, error.message, error: true);
-    } catch (_) {
-      if (context.mounted) {
-        _message(context, 'Thanh toán không thành công.', error: true);
-      }
-    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CheckoutPage()),
+    );
+    await ref.read(cartProvider.notifier).reload();
   }
 }
 

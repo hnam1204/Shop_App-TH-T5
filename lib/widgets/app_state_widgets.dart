@@ -30,9 +30,15 @@ class LoadingState extends StatelessWidget {
 
 class ErrorState extends StatelessWidget {
   final String message;
-  final VoidCallback onRetry;
+  final VoidCallback? onRetry;
+  final IconData icon;
 
-  const ErrorState({super.key, required this.message, required this.onRetry});
+  const ErrorState({
+    super.key,
+    required this.message,
+    this.onRetry,
+    this.icon = Icons.error_outline_rounded,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +57,7 @@ class ErrorState extends StatelessWidget {
                 color: colorScheme.error.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.wifi_off_rounded,
-                size: 34,
-                color: colorScheme.error,
-              ),
+              child: Icon(icon, size: 34, color: colorScheme.error),
             ),
             const SizedBox(height: 16),
             Text(
@@ -66,12 +68,14 @@ class ErrorState extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Thử lại'),
-            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Thử lại'),
+              ),
+            ],
           ],
         ),
       ),
@@ -82,11 +86,15 @@ class ErrorState extends StatelessWidget {
 class EmptyState extends StatelessWidget {
   final String message;
   final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   const EmptyState({
     super.key,
     required this.message,
     this.icon = Icons.inventory_2_outlined,
+    this.actionLabel,
+    this.onAction,
   });
 
   @override
@@ -117,7 +125,39 @@ class EmptyState extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 20),
+              FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class AppSkeleton extends StatelessWidget {
+  final double height;
+  final BorderRadius? borderRadius;
+
+  const AppSkeleton({super.key, required this.height, this.borderRadius});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return Semantics(
+      label: 'Đang tải',
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.45, end: 0.9),
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeInOut,
+        builder: (_, opacity, child) => Opacity(opacity: opacity, child: child),
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: borderRadius ?? BorderRadius.circular(14),
+          ),
         ),
       ),
     );

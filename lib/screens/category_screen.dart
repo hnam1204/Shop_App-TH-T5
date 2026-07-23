@@ -7,7 +7,9 @@ import '../widgets/category_card.dart';
 import 'product_by_category_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
-  const CategoryScreen({super.key});
+  final bool embeddedInNavigation;
+
+  const CategoryScreen({super.key, this.embeddedInNavigation = false});
 
   @override
   State<CategoryScreen> createState() => _CategoryScreenState();
@@ -46,7 +48,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
     final width = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Danh mục')),
+      appBar: AppBar(
+        automaticallyImplyLeading: !widget.embeddedInNavigation,
+        title: const Text('Danh mục'),
+      ),
       body: FutureBuilder<List<Category>>(
         future: _categoriesFuture,
         builder: (context, snapshot) {
@@ -73,7 +78,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               crossAxisCount: width >= 600 ? 3 : 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: width < 360 ? 0.92 : 1,
+              mainAxisExtent: width < 360 ? 164 : 174,
             ),
             itemBuilder: (context, index) {
               final category = categories[index];

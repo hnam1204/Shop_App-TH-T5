@@ -6,6 +6,7 @@ import '../../models/payment_detail.dart';
 import '../../services/payment_service.dart';
 import '../../widgets/app_network_image.dart';
 import '../../widgets/app_state_widgets.dart';
+import '../../core/config/app_flavor.dart';
 
 class PaymentDetailPage extends StatefulWidget {
   final int paymentId;
@@ -61,7 +62,11 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chi tiết hóa đơn')),
+      appBar: AppBar(
+        title: Text(
+          AppFlavorConfig.isStore ? 'Chi tiết đơn hàng' : 'Chi tiết hóa đơn',
+        ),
+      ),
       body: SafeArea(child: _buildBody()),
     );
   }

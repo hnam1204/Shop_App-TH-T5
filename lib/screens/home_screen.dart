@@ -84,33 +84,31 @@ class HomeScreen extends StatelessWidget {
               actionText: '${MockData.categories.length} mục',
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+          SizedBox(
+            height: width >= 600 ? 176 : 150,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              scrollDirection: Axis.horizontal,
               itemCount: MockData.categories.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: width >= 600 ? 4 : 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: width < 360 ? 1 : 1.12,
-              ),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final category = MockData.categories[index];
-                return CategoryCard(
-                  category: category,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProductByCategoryScreen(
-                          categoryName: category.name,
-                          slug: category.slug,
+                return SizedBox(
+                  width: width >= 600 ? 190 : 150,
+                  child: CategoryCard(
+                    category: category,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProductByCategoryScreen(
+                            categoryName: category.name,
+                            slug: category.slug,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               },
             ),

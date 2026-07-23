@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../core/database/database_constants.dart';
+import '../core/config/app_flavor.dart';
 import '../data/firestore/week8_payment_firestore_repository.dart';
 import '../models/payment.dart';
 import '../models/payment_detail.dart';
@@ -114,9 +115,11 @@ class PaymentService {
 
   Future<List<Payment>> getPayments() async {
     final user = _auth.currentUser;
-    debugPrint(
-      'Payment history FirebaseAuth.currentUser: ${user?.uid ?? 'null'}',
-    );
+    if (AppFlavorConfig.isDemo) {
+      debugPrint(
+        'Payment history FirebaseAuth.currentUser: ${user?.uid ?? 'null'}',
+      );
+    }
     if (user == null) {
       throw const PaymentHistoryAuthenticationException();
     }

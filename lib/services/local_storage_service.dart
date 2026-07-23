@@ -29,7 +29,7 @@ class LocalStorageService {
       if (rememberMe) {
         await Future.wait([
           prefs.setString(_savedEmailKey, email),
-          prefs.setString(_savedPasswordKey, password),
+          prefs.remove(_savedPasswordKey),
         ]);
       } else {
         await clearRememberLogin();
@@ -45,7 +45,7 @@ class LocalStorageService {
       return RememberLoginData(
         rememberMe: prefs.getBool(_rememberMeKey) ?? false,
         email: prefs.getString(_savedEmailKey) ?? '',
-        password: prefs.getString(_savedPasswordKey) ?? '',
+        password: '',
       );
     } catch (_) {
       return const RememberLoginData();
@@ -114,7 +114,7 @@ class LocalStorageService {
     await saveCurrentUser(user);
     final rememberLogin = await loadRememberLogin();
     if (rememberLogin.rememberMe) {
-      await saveRememberLogin(user.email, user.password, true);
+      await saveRememberLogin(user.email, '', true);
     }
   }
 
@@ -231,7 +231,7 @@ class LocalStorageService {
 
   static Future<void> saveRememberMe(bool value) async {
     final rememberLogin = await loadRememberLogin();
-    await saveRememberLogin(rememberLogin.email, rememberLogin.password, value);
+    await saveRememberLogin(rememberLogin.email, '', value);
   }
 
   static Future<bool> getRememberMe() async {
@@ -245,12 +245,21 @@ class LocalStorageService {
 
   static Future<void> saveThemeMode(ThemeMode mode) async {
     final settings = await getSettings();
-    await saveSettings(settings.copyWith(isDarkMode: mode == ThemeMode.dark));
+    await saveSettings(
+      settings.copyWith(
+        isDarkMode: mode == ThemeMode.dark,
+        themeMode: mode.name,
+      ),
+    );
   }
 
   static Future<ThemeMode> getThemeMode() async {
     final settings = await getSettings();
-    return settings.isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    return switch (settings.themeMode) {
+      'dark' => ThemeMode.dark,
+      'light' => ThemeMode.light,
+      _ => ThemeMode.system,
+    };
   }
 
   static String _formatLoginTime(DateTime time) {

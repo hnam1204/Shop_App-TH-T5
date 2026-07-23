@@ -7,15 +7,19 @@ import '../providers/cart_provider.dart';
 import '../providers/favourite_provider.dart';
 import '../widgets/app_network_image.dart';
 import '../widgets/app_state_widgets.dart';
+import 'product_screen.dart';
 
 class FavouritePage extends ConsumerWidget {
-  const FavouritePage({super.key});
+  final bool embeddedInNavigation;
+
+  const FavouritePage({super.key, this.embeddedInNavigation = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favourites = ref.watch(favouriteProvider);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: !embeddedInNavigation,
         title: const Text('Yêu thích'),
         actions: [
           IconButton(
@@ -35,9 +39,14 @@ class FavouritePage extends ConsumerWidget {
             onRetry: () => ref.read(favouriteProvider.notifier).reload(),
           ),
           data: (state) => state.items.isEmpty
-              ? const EmptyState(
-                  message: 'Chưa có sản phẩm yêu thích.',
+              ? EmptyState(
+                  message: 'Chưa có sản phẩm yêu thích',
                   icon: Icons.favorite_border,
+                  actionLabel: 'Khám phá sản phẩm',
+                  onAction: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProductScreen()),
+                  ),
                 )
               : _FavouriteGrid(items: state.items),
         ),

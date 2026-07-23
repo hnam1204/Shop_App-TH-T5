@@ -9,9 +9,6 @@ import 'main_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  static const String demoEmail = 'hnam12042006@gmail.com';
-  static const String demoPassword = 'hainam@@';
-
   const LoginScreen({super.key});
 
   @override
@@ -27,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
   bool _isLoadingSavedData = true;
   bool _isLoggingIn = false;
+  String? _loginError;
 
   @override
   void initState() {
@@ -49,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _rememberMe = rememberLogin.rememberMe;
       if (rememberLogin.rememberMe) {
         _emailController.text = rememberLogin.email;
-        _passwordController.text = rememberLogin.password;
       }
       _isLoadingSavedData = false;
     });
@@ -64,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() {
       _isLoggingIn = true;
+      _loginError = null;
     });
 
     try {
@@ -83,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
             firebaseUser?.displayName ??
             'User',
         email: userData?['email']?.toString() ?? email,
-        password: password,
+        password: '',
         phone: userData?['phone']?.toString() ?? '',
       );
 
@@ -92,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await LocalStorageService.addLoginHistory(email);
 
       if (_rememberMe) {
-        await LocalStorageService.saveRememberLogin(email, password, true);
+        await LocalStorageService.saveRememberLogin(email, '', true);
       } else {
         await LocalStorageService.clearRememberLogin();
       }
@@ -105,8 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     } on FirebaseAuthException catch (error) {
       _showLoginError(_firebaseLoginMessage(error.code));
-    } catch (error) {
-      _showLoginError('Đăng nhập thất bại: $error');
+    } catch (_) {
+      _showLoginError('Đăng nhập thất bại. Vui lòng thử lại.');
     }
   }
 
@@ -114,10 +112,29 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     setState(() {
       _isLoggingIn = false;
+      _loginError = message;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-    );
+  }
+
+  Future<void> _forgotPassword() async {
+    final emailError = _validateEmail(_emailController.text);
+    if (emailError != null) {
+      setState(() => _loginError = 'Nhập email hợp lệ để đặt lại mật khẩu.');
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: _emailController.text.trim(),
+      );
+      if (!mounted) return;
+      setState(
+        () => _loginError =
+            'Đã gửi hướng dẫn đặt lại mật khẩu đến email của bạn.',
+      );
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      setState(() => _loginError = _firebaseLoginMessage(error.code));
+    }
   }
 
   void _openRegister() {
@@ -226,6 +243,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   label: 'Email',
                                   icon: Icons.email_outlined,
                                   keyboardType: TextInputType.emailAddress,
+                                  autofillHints: const [
+                                    AutofillHints.username,
+                                    AutofillHints.email,
+                                  ],
                                   validator: _validateEmail,
                                 ),
                                 const SizedBox(height: 16),
@@ -235,6 +256,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   icon: Icons.lock_outline,
                                   obscureText: _hidePassword,
                                   textInputAction: TextInputAction.done,
+                                  autofillHints: const [AutofillHints.password],
+                                  onFieldSubmitted: (_) => _login(),
                                   suffixIcon: IconButton(
                                     tooltip: _hidePassword ? 'Hiện' : 'Ẩn',
                                     icon: Icon(
@@ -255,6 +278,32 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return null;
                                   },
                                 ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: _forgotPassword,
+                                    child: const Text('Quên mật khẩu?'),
+                                  ),
+                                ),
+                                if (_loginError != null)
+                                  Semantics(
+                                    liveRegion: true,
+                                    child: Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.errorContainer,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        _loginError!,
+                                        style: TextStyle(
+                                          color: colorScheme.onErrorContainer,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 const SizedBox(height: 8),
                                 CheckboxListTile(
                                   contentPadding: EdgeInsets.zero,

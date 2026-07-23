@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../constants/week8_firestore_constants.dart';
+import '../../core/config/app_flavor.dart';
 import '../../models/payment.dart';
 import '../../models/payment_detail.dart';
 import 'week8_counter.dart';
@@ -58,14 +59,18 @@ class Week8PaymentFirestoreRepository {
       if (snapshot.docs.isEmpty) return List<Payment>.empty();
       return snapshot.docs.map(Payment.fromFirestore).toList(growable: false);
     } on FirebaseException catch (error, stackTrace) {
-      debugPrint('Week8 payment history FirebaseException.code: ${error.code}');
-      debugPrint(
-        'Week8 payment history FirebaseException.message: ${error.message}',
-      );
-      debugPrintStack(
-        label: 'Week8 payment history stackTrace',
-        stackTrace: stackTrace,
-      );
+      if (AppFlavorConfig.isDemo) {
+        debugPrint(
+          'Week8 payment history FirebaseException.code: ${error.code}',
+        );
+        debugPrint(
+          'Week8 payment history FirebaseException.message: ${error.message}',
+        );
+        debugPrintStack(
+          label: 'Week8 payment history stackTrace',
+          stackTrace: stackTrace,
+        );
+      }
       rethrow;
     }
   }

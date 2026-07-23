@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/payment.dart';
 import '../../services/payment_service.dart';
 import '../../widgets/app_state_widgets.dart';
+import '../../core/config/app_flavor.dart';
 import 'payment_detail_page.dart';
 
 class PaymentHistoryPage extends StatefulWidget {
@@ -55,7 +56,9 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lịch sử hóa đơn')),
+      appBar: AppBar(
+        title: Text(AppFlavorConfig.isStore ? 'Đơn hàng' : 'Lịch sử hóa đơn'),
+      ),
       body: SafeArea(child: _buildBody()),
     );
   }
@@ -75,7 +78,9 @@ class _PaymentHistoryPageState extends State<PaymentHistoryPage> {
     }
     if (_payments.isEmpty) {
       return const EmptyState(
-        message: 'Chưa có hóa đơn nào.',
+        message: AppFlavorConfig.isStore
+            ? 'Chưa có đơn hàng'
+            : 'Chưa có hóa đơn nào.',
         icon: Icons.receipt_long_outlined,
       );
     }

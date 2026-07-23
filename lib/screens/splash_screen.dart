@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../services/local_storage_service.dart';
+import '../core/config/app_flavor.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
 
@@ -19,14 +20,18 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _openNextScreen() async {
-    await Future.delayed(const Duration(milliseconds: 2500));
-    final isLoggedIn = await LocalStorageService.getLoginState();
+    await Future<void>.delayed(Duration.zero);
+    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
     if (!mounted) return;
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => isLoggedIn ? const MainScreen() : const LoginScreen(),
+      PageRouteBuilder<void>(
+        transitionDuration: const Duration(milliseconds: 220),
+        pageBuilder: (_, animation, _) => FadeTransition(
+          opacity: animation,
+          child: isLoggedIn ? const MainScreen() : const LoginScreen(),
+        ),
       ),
     );
   }
@@ -73,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Shop App',
+                  AppBrand.name,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontSize: 32,
@@ -82,22 +87,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Smart shopping, simple life',
+                  AppBrand.tagline,
                   style: TextStyle(
                     color: Theme.of(
                       context,
                     ).colorScheme.onPrimary.withValues(alpha: 0.78),
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 34),
-                SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    strokeWidth: 3,
                   ),
                 ),
               ],

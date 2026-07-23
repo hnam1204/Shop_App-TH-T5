@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/local_storage_service.dart';
+import 'app_colors.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
@@ -13,7 +14,7 @@ Future<void> setThemeMode(ThemeMode mode) async {
   await LocalStorageService.saveThemeMode(mode);
 }
 
-const _seedColor = Color(0xFF635BFF);
+const _seedColor = AppColors.primary;
 const _radiusSmall = 10.0;
 const _radiusMedium = 14.0;
 
@@ -24,7 +25,7 @@ final ThemeData lightTheme = ThemeData(
     primary: _seedColor,
     secondary: const Color(0xFF06B6D4),
   ),
-  scaffoldBackgroundColor: const Color(0xFFF7F7FB),
+  scaffoldBackgroundColor: AppColors.lightBackground,
   appBarTheme: AppBarTheme(
     centerTitle: true,
     elevation: 0,
@@ -130,11 +131,11 @@ final ThemeData darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
     surface: const Color(0xFF1E1E2C),
     onSurface: const Color(0xFFE2E8F0),
   ),
-  scaffoldBackgroundColor: const Color(0xFF12121A),
+  scaffoldBackgroundColor: AppColors.darkBackground,
   appBarTheme: const AppBarTheme(
     centerTitle: true,
     elevation: 0,
-    backgroundColor: Color(0xFF1E1E2C),
+    backgroundColor: AppColors.darkSurface,
     foregroundColor: Colors.white,
     titleTextStyle: TextStyle(
       fontSize: 20,

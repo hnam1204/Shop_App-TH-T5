@@ -20,7 +20,10 @@ class FavouriteBadgeIcon extends ConsumerWidget {
         onPressed: onPressed,
         icon: Badge(
           isLabelVisible: count > 0,
-          label: Text(count > 99 ? '99+' : '$count'),
+          label: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: Text(count > 99 ? '99+' : '$count', key: ValueKey(count)),
+          ),
           backgroundColor: colors.error,
           textColor: colors.onError,
           child: const Icon(Icons.favorite_border),

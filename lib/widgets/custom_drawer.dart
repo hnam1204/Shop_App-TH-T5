@@ -75,23 +75,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
     final menuItems = const [
       _DrawerMenuItem(
         page: AppPage.home,
-        title: 'Danh mục',
-        icon: Icons.category_outlined,
+        title: 'Trang chủ',
+        icon: Icons.home_outlined,
+        sectionTitle: 'MUA SẮM',
       ),
       _DrawerMenuItem(
         page: AppPage.allProducts,
         title: 'Tất cả sản phẩm',
         icon: Icons.shopping_bag_outlined,
-      ),
-      _DrawerMenuItem(
-        page: AppPage.categories,
-        title: 'Danh mục sản phẩm',
-        icon: Icons.dashboard_customize_outlined,
-      ),
-      _DrawerMenuItem(
-        page: AppPage.products,
-        title: 'Sản phẩm',
-        icon: Icons.storefront_outlined,
       ),
       _DrawerMenuItem(
         page: AppPage.search,
@@ -104,9 +95,20 @@ class _CustomDrawerState extends State<CustomDrawer> {
         icon: Icons.favorite_border,
       ),
       _DrawerMenuItem(
+        page: AppPage.cartHive,
+        title: 'Giỏ hàng',
+        icon: Icons.shopping_cart_outlined,
+      ),
+      _DrawerMenuItem(
         page: AppPage.profile,
         title: 'Tài khoản của tôi',
         icon: Icons.manage_accounts_outlined,
+        sectionTitle: 'TÀI KHOẢN',
+      ),
+      _DrawerMenuItem(
+        page: AppPage.orderHistory,
+        title: 'Đơn hàng',
+        icon: Icons.receipt_long_outlined,
       ),
       _DrawerMenuItem(
         page: AppPage.settings,
@@ -114,35 +116,35 @@ class _CustomDrawerState extends State<CustomDrawer> {
         icon: Icons.settings_outlined,
       ),
       _DrawerMenuItem(
+        page: AppPage.about,
+        title: 'Giới thiệu ứng dụng',
+        icon: Icons.info_outline,
+      ),
+      _DrawerMenuItem(
+        page: AppPage.categories,
+        title: 'Danh mục Firebase',
+        icon: Icons.cloud_outlined,
+        sectionTitle: 'BÀI HỌC / KỸ THUẬT',
+      ),
+      _DrawerMenuItem(
+        page: AppPage.products,
+        title: 'Sản phẩm Firebase',
+        icon: Icons.cloud_queue_outlined,
+      ),
+      _DrawerMenuItem(
         page: AppPage.productsHive,
         title: 'Sản phẩm Hive',
         icon: Icons.inventory_2_outlined,
       ),
       _DrawerMenuItem(
-        page: AppPage.cartHive,
-        title: 'Giỏ hàng Hive',
-        icon: Icons.shopping_cart_outlined,
-      ),
-      _DrawerMenuItem(
         page: AppPage.categoriesSqlite,
         title: 'Danh mục SQLite',
         icon: Icons.account_tree_outlined,
-        sectionTitle: 'LOCAL DATABASE — SQLITE',
       ),
       _DrawerMenuItem(
         page: AppPage.productsSqlite,
         title: 'Sản phẩm SQLite',
         icon: Icons.storage_outlined,
-      ),
-      _DrawerMenuItem(
-        page: AppPage.orderHistory,
-        title: 'Lịch sử hóa đơn',
-        icon: Icons.receipt_long_outlined,
-      ),
-      _DrawerMenuItem(
-        page: AppPage.about,
-        title: 'Giới thiệu ứng dụng',
-        icon: Icons.info_outline,
       ),
     ];
 
